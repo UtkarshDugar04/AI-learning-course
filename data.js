@@ -40,7 +40,7 @@ const DATA = {
       objective: "Trace major milestones of AI from 1950 to today and understand why symbolic AI failed.",
       concepts: ["Symbolic AI", "Machine Learning", "Deep Learning"],
       resources: [
-        { type: "video", title: "The History of Artificial Intelligence (Lex Fridman / CS50)", duration: "45m", url: "https://www.youtube.com/results?search_query=history+of+ai" },
+        { type: "video", title: "The History of Artificial Intelligence (Lex Fridman / CS50)", duration: "45m", url: "https://www.youtube.com/watch?v=PXo5bI413Vw" },
         { type: "article", title: "The Bitter Lesson by Richard Sutton", duration: "10m", url: "http://www.incompleteideas.net/IncIdeas/BitterLesson.html" }
       ]
     },
@@ -126,7 +126,7 @@ const DATA = {
       objective: "Explain what an API is and why RAG exists.",
       concepts: ["API", "RAG", "Knowledge Cutoff"],
       resources: [
-        { type: "video", title: "CS50: APIs", duration: "30m", url: "https://www.youtube.com/results?search_query=cs50+api" },
+        { type: "video", title: "CS50: APIs", duration: "30m", url: "https://www.youtube.com/watch?v=OVvTv9Hy91Q" },
         { type: "video", title: "IBM Technology: RAG explained", duration: "8m", url: "https://www.youtube.com/watch?v=T-D1OfcDW1M" }
       ]
     },
@@ -161,7 +161,7 @@ const DATA = {
       objective: "Describe major AI business model archetypes and what makes an AI company defensible.",
       concepts: ["Infrastructure Layer", "Model Layer", "Vertical AI"],
       resources: [
-        { type: "video", title: "Y Combinator: How to Build AI Products", duration: "30m", url: "https://www.youtube.com/results?search_query=y+combinator+how+to+build+ai+products" }
+        { type: "video", title: "Y Combinator: How to Build AI Products", duration: "30m", url: "https://www.youtube.com/watch?v=tq-u_n7s_70" }
       ]
     },
     "mod_frontier": {
