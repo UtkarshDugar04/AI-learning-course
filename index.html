@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Personal AI Learning Cockpit</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  
+  <div id="sidebar">
+    <div class="sidebar-header">AI Learning Cockpit</div>
+    
+    <div class="nav-group-label">Learning</div>
+    <div class="nav-item" onclick="navigate('dashboard')" id="nav-dashboard">Dashboard</div>
+    <div class="nav-item" onclick="navigate('roadmap')" id="nav-roadmap">Roadmap & Modules</div>
+    <div class="nav-item" onclick="navigate('graph')" id="nav-graph">Knowledge Graph</div>
+    
+    <div class="nav-group-label">Intelligence</div>
+    <div class="nav-item" onclick="navigate('hub')" id="nav-hub">Intelligence Hub</div>
+    <div class="nav-item" onclick="navigate('projects')" id="nav-projects">Project Studio</div>
+    
+    <div class="nav-group-label">Workspace</div>
+    <div class="nav-item" onclick="navigate('notes')" id="nav-notes">Personal Notes</div>
+  </div>
+
+  <div id="main">
+    <div id="topbar">
+      <!-- Breadcrumbs / Top Status -->
+      <span id="topbar-content">Dashboard</span>
+    </div>
+    
+    <div id="content">
+      <!-- Rendered dynamically via app.js -->
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
