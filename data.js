@@ -40,7 +40,7 @@ const DATA = {
       objective: "Trace major milestones of AI from 1950 to today and understand why symbolic AI failed.",
       concepts: ["Symbolic AI", "Machine Learning", "Deep Learning"],
       resources: [
-        { type: "course", title: "CS50's Introduction to Artificial Intelligence (Harvard)", duration: "Self-paced", url: "https://cs50.harvard.edu/ai/" },
+        { type: "video", title: "CS50 AI: Lecture 0 - Search (History & Fundamentals)", duration: "2h", url: "https://www.youtube.com/watch?v=WbzNRTTrX0g" },
         { type: "article", title: "The Bitter Lesson by Richard Sutton", duration: "10m", url: "http://www.incompleteideas.net/IncIdeas/BitterLesson.html" }
       ]
     },
