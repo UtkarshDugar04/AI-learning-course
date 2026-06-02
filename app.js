@@ -59,6 +59,10 @@ function escapeHTML(str) {
 
 // ─── ROUTING ──────────────────────────────────────────
 
+window.toggleSidebar = function() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
 function navigate(page, payload = null) {
   STATE.page = page;
   
@@ -71,6 +75,9 @@ function navigate(page, payload = null) {
   document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
   const activeNav = document.getElementById(`nav-${page === "module" ? "roadmap" : page}`);
   if (activeNav) activeNav.classList.add("active");
+
+  // Close sidebar on mobile after navigating
+  document.getElementById('sidebar').classList.remove('open');
 
   const content = document.getElementById("content");
   
