@@ -540,8 +540,26 @@ window.toggleCategory = function(id) {
   navigate("notes");
 }
 
+// ─── AUTHENTICATION ────────────────────────────────────────
+
+window.checkAuth = function() {
+  const pwd = document.getElementById("auth-password").value;
+  if (pwd === "LOSER") {
+    sessionStorage.setItem("site_auth", "true");
+    const overlay = document.getElementById("auth-overlay");
+    if (overlay) overlay.style.display = "none";
+  } else {
+    const errorEl = document.getElementById("auth-error");
+    if (errorEl) errorEl.style.display = "block";
+  }
+}
+
 // ─── INIT ──────────────────────────────────────────────
 
 document.addEventListener("DOMContentLoaded", () => {
+  if (sessionStorage.getItem("site_auth") === "true") {
+    const overlay = document.getElementById("auth-overlay");
+    if (overlay) overlay.style.display = "none";
+  }
   navigate(STATE.page);
 });
