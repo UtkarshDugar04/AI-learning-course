@@ -286,3 +286,114 @@ textarea:focus {
   overflow: hidden;
   position: relative;
 }
+
+/* Sticky Notes */
+.sticky-note {
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+  color: #111; /* Dark text for pastel sticky notes */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  transition: transform 0.15s ease;
+  white-space: pre-wrap;
+}
+
+.sticky-note:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.sticky-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  display: flex;
+  gap: 4px;
+}
+
+.sticky-note:hover .sticky-actions {
+  opacity: 1;
+}
+
+.sticky-btn {
+  background: rgba(255, 255, 255, 0.6);
+  border: none;
+  color: #333;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+}
+.sticky-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.category-header {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) 0;
+  margin-top: var(--space-4);
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+}
+
+.category-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.color-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+.color-swatch.selected {
+  border-color: #fff;
+  box-shadow: 0 0 0 1px #000;
+}
+
+/* FigJam-inspired Palette */
+.bg-fj-yellow { background-color: #fde047; }
+.bg-fj-orange { background-color: #fcd34d; }
+.bg-fj-red { background-color: #fca5a5; }
+.bg-fj-pink { background-color: #ffb3ba; }
+.bg-fj-purple { background-color: #d8b4fe; }
+.bg-fj-violet { background-color: #c4b5fd; }
+.bg-fj-indigo { background-color: #a5b4fc; }
+.bg-fj-blue { background-color: #93c5fd; }
+.bg-fj-cyan { background-color: #67e8f9; }
+.bg-fj-teal { background-color: #5eead4; }
+.bg-fj-mint { background-color: #86efac; }
+.bg-fj-green { background-color: #bbf7d0; }
+.bg-fj-lime { background-color: #d9f99d; }
+.bg-fj-stone { background-color: #e5e7eb; }
+.bg-fj-gray { background-color: #d1d5db; }
+.bg-fj-dark { background-color: #9ca3af; color: #fff; } /* Override text for dark */
+
+/* Input Composer */
+#note-composer {
+  background: var(--bg-card);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  margin-bottom: var(--space-5);
+}

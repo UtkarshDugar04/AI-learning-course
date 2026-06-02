@@ -5,13 +5,31 @@ const STORAGE_KEY = "neuron-cockpit-v1";
 function getInitialState() {
   const defaults = {
     lessonsCompleted: [],
-    notes: "",
+    categories: [{ id: 'cat_general', name: 'General', isExpanded: true }],
+    stickies: [],
     currentModuleId: null
   };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaults;
-    return { ...defaults, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    
+    if (typeof parsed.notes === 'string') {
+      parsed.stickies = [];
+      parsed.categories = defaults.categories;
+      if (parsed.notes.trim()) {
+        parsed.stickies.push({
+          id: 'note_' + Date.now(),
+          categoryId: 'cat_general',
+          text: parsed.notes,
+          color: 'bg-fj-yellow',
+          timestamp: Date.now()
+        });
+      }
+      delete parsed.notes;
+    }
+    
+    return { ...defaults, ...parsed };
   } catch (e) {
     return defaults;
   }
@@ -319,23 +337,200 @@ function renderProjects(container) {
   container.innerHTML = html;
 }
 
+const STICKY_COLORS = [
+  'bg-fj-yellow', 'bg-fj-orange', 'bg-fj-red', 'bg-fj-pink',
+  'bg-fj-purple', 'bg-fj-violet', 'bg-fj-indigo', 'bg-fj-blue',
+  'bg-fj-cyan', 'bg-fj-teal', 'bg-fj-mint', 'bg-fj-green',
+  'bg-fj-lime', 'bg-fj-stone', 'bg-fj-gray', 'bg-fj-dark'
+];
+
+let composerState = { color: 'bg-fj-yellow', categoryId: 'cat_general' };
+let editingNoteId = null;
+
 function renderNotes(container) {
   document.getElementById("topbar-content").innerText = "Personal Notes";
-  container.innerHTML = `
+
+  // Ensure General category exists
+  if (!STATE.data.categories || STATE.data.categories.length === 0) {
+    STATE.data.categories = [{ id: 'cat_general', name: 'General', isExpanded: true }];
+  }
+  if (!STATE.data.stickies) STATE.data.stickies = [];
+
+  // Check if composer category still exists, else default
+  if (!STATE.data.categories.find(c => c.id === composerState.categoryId)) {
+    composerState.categoryId = STATE.data.categories[0].id;
+  }
+
+  let html = `
     <h1>Workspace Notes</h1>
-    <p>A quiet place to synthesize your thoughts. Automatically saved locally.</p>
-    <textarea id="notes-area" placeholder="Write down your mental models here...">${escapeHTML(STATE.data.notes)}</textarea>
+    <p>Capture your mental models. Hit Enter to save a new sticky note.</p>
+    
+    <!-- Composer -->
+    <div id="note-composer">
+      <div class="color-picker" id="composer-colors">
+        ${STICKY_COLORS.map(c => `<div class="color-swatch ${c} ${composerState.color === c ? 'selected' : ''}" onclick="setComposerColor('${c}')"></div>`).join('')}
+      </div>
+      <textarea id="composer-input" placeholder="Type a note and hit Enter to save..." style="min-height: 80px; margin-bottom: 8px;"></textarea>
+      <div class="flex justify-between items-center">
+        <select id="composer-category" style="background:var(--bg-app); color:var(--text-primary); border:1px solid var(--border-light); border-radius:4px; padding:4px 8px;" onchange="composerState.categoryId = this.value">
+          ${STATE.data.categories.map(cat => `<option value="${cat.id}" ${composerState.categoryId === cat.id ? 'selected' : ''}>${escapeHTML(cat.name)}</option>`).join('')}
+        </select>
+        <button class="primary" onclick="saveNewSticky()">Save Note (Enter)</button>
+      </div>
+    </div>
+
+    <!-- Category Manager -->
+    <div class="flex items-center gap-2 mb-6">
+      <input type="text" id="new-category-input" placeholder="New Category Name..." style="background:var(--bg-app); color:var(--text-primary); border:1px solid var(--border-light); padding:6px 10px; border-radius:4px; font-size:13px;" />
+      <button onclick="addCategory()">Add Category</button>
+    </div>
+
+    <!-- Stickies List -->
+    <div id="stickies-container">
   `;
 
-  const textarea = document.getElementById("notes-area");
-  let timeout;
-  textarea.addEventListener('input', (e) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      STATE.data.notes = e.target.value;
-      saveState();
-    }, 500);
+  STATE.data.categories.forEach(cat => {
+    const catStickies = STATE.data.stickies.filter(s => s.categoryId === cat.id);
+    html += `
+      <div class="category-section">
+        <div class="category-header" onclick="toggleCategory('${cat.id}')">
+          <span>${escapeHTML(cat.name)} <span style="color:var(--text-muted); font-size:12px; margin-left:8px;">(${catStickies.length})</span></span>
+          <span>${cat.isExpanded ? '▼' : '▶'}</span>
+        </div>
+        ${cat.isExpanded ? `
+          <div class="category-content">
+            ${catStickies.map(s => renderStickyNote(s)).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `;
   });
+
+  html += `</div>`;
+  container.innerHTML = html;
+
+  // Add Enter listener to composer
+  const composerInput = document.getElementById("composer-input");
+  if (composerInput) {
+    composerInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        saveNewSticky();
+      }
+    });
+  }
+}
+
+function renderStickyNote(note) {
+  if (editingNoteId === note.id) {
+    // Edit Mode
+    return `
+      <div class="sticky-note ${note.color}" style="box-shadow: 0 0 0 2px #fff;">
+        <div class="color-picker" style="margin-bottom:8px;">
+          ${STICKY_COLORS.map(c => `<div class="color-swatch ${c} ${note.color === c ? 'selected' : ''}" onclick="updateNoteColor('${note.id}', '${c}')" style="width:16px; height:16px;"></div>`).join('')}
+        </div>
+        <textarea id="edit-input-${note.id}" style="min-height:80px; margin-bottom:8px; background:rgba(255,255,255,0.1); color:inherit; border:1px solid rgba(0,0,0,0.2);">${escapeHTML(note.text)}</textarea>
+        <div class="flex justify-between items-center">
+          <select id="edit-cat-${note.id}" style="background:rgba(255,255,255,0.2); color:inherit; border:none; border-radius:4px; padding:2px;">
+            ${STATE.data.categories.map(cat => `<option value="${cat.id}" ${note.categoryId === cat.id ? 'selected' : ''} style="color:#000;">${escapeHTML(cat.name)}</option>`).join('')}
+          </select>
+          <div class="flex gap-2">
+            <button class="sticky-btn" onclick="deleteSticky('${note.id}')">Delete</button>
+            <button class="sticky-btn" style="background:#111; color:#fff;" onclick="saveEdit('${note.id}')">Save</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="sticky-note ${note.color}">
+      <div class="sticky-actions">
+        <button class="sticky-btn" onclick="startEdit('${note.id}')">Edit</button>
+      </div>
+      <div>${escapeHTML(note.text)}</div>
+      <div style="font-size:10px; opacity:0.6; margin-top:12px; text-align:right;">
+        ${new Date(note.timestamp).toLocaleDateString()}
+      </div>
+    </div>
+  `;
+}
+
+// Global UI actions
+window.setComposerColor = function(color) {
+  composerState.color = color;
+  navigate("notes");
+}
+
+window.saveNewSticky = function() {
+  const input = document.getElementById("composer-input");
+  const text = input.value.trim();
+  if (!text) return;
+  
+  STATE.data.stickies.push({
+    id: 'note_' + Date.now(),
+    categoryId: composerState.categoryId,
+    text: text,
+    color: composerState.color,
+    timestamp: Date.now()
+  });
+  saveState();
+  
+  // Ensure the target category is expanded so user sees the new note
+  const cat = STATE.data.categories.find(c => c.id === composerState.categoryId);
+  if (cat && !cat.isExpanded) cat.isExpanded = true;
+  
+  navigate("notes");
+}
+
+window.startEdit = function(id) {
+  editingNoteId = id;
+  navigate("notes");
+}
+
+window.saveEdit = function(id) {
+  const note = STATE.data.stickies.find(s => s.id === id);
+  if (note) {
+    const textInput = document.getElementById(`edit-input-${id}`);
+    const catSelect = document.getElementById(`edit-cat-${id}`);
+    note.text = textInput.value.trim();
+    note.categoryId = catSelect.value;
+  }
+  editingNoteId = null;
+  saveState();
+  navigate("notes");
+}
+
+window.updateNoteColor = function(id, color) {
+  const note = STATE.data.stickies.find(s => s.id === id);
+  if (note) note.color = color;
+  saveState();
+  navigate("notes");
+}
+
+window.deleteSticky = function(id) {
+  if (confirm("Delete this note?")) {
+    STATE.data.stickies = STATE.data.stickies.filter(s => s.id !== id);
+    editingNoteId = null;
+    saveState();
+    navigate("notes");
+  }
+}
+
+window.addCategory = function() {
+  const input = document.getElementById("new-category-input");
+  const name = input.value.trim();
+  if (!name) return;
+  STATE.data.categories.push({ id: 'cat_' + Date.now(), name: name, isExpanded: true });
+  saveState();
+  navigate("notes");
+}
+
+window.toggleCategory = function(id) {
+  const cat = STATE.data.categories.find(c => c.id === id);
+  if (cat) cat.isExpanded = !cat.isExpanded;
+  saveState();
+  navigate("notes");
 }
 
 // ─── INIT ──────────────────────────────────────────────
